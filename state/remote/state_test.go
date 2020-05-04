@@ -151,14 +151,50 @@ func TestStatePersist(t *testing.T) {
 		// Second call to PersistState generates no client requests, because
 		// nothing changed in the state itself.
 
-		// Third call to PersistState, with the "foo" output value updated
+		// Third call to PersistState, with the serial changed
+		{
+			Method: "Put",
+			Content: map[string]interface{}{
+				"version":           4.0,
+				"lineage":           "mock-lineage",
+				"serial":            4.0, // serial increases because the outputs changed
+				"terraform_version": version.Version,
+				"outputs": map[string]interface{}{
+					"foo": map[string]interface{}{
+						"type":  "string",
+						"value": "bar",
+					},
+				},
+				"resources": []interface{}{},
+			},
+		},
+
+		// Fourth call to PersistState, with the lineage changed
+		{
+			Method: "Put",
+			Content: map[string]interface{}{
+				"version":           4.0,
+				"lineage":           "behold-a-wild-lineage-appears",
+				"serial":            3.0, // serial increases because the outputs changed
+				"terraform_version": version.Version,
+				"outputs": map[string]interface{}{
+					"foo": map[string]interface{}{
+						"type":  "string",
+						"value": "bar",
+					},
+				},
+				"resources": []interface{}{},
+			},
+		},
+
+		// Fifth call to PersistState, with the "foo" output value updated
 		// to "baz".
 		{
 			Method: "Put",
 			Content: map[string]interface{}{
 				"version":           4.0,
 				"lineage":           "mock-lineage",
-				"serial":            3.0, // serial increases because the outputs changed
+				"serial":            4.0, // serial increases because the outputs changed
 				"terraform_version": version.Version,
 				"outputs": map[string]interface{}{
 					"foo": map[string]interface{}{
